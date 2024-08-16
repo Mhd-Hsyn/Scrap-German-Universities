@@ -1,0 +1,7 @@
+beautifulsoup4==4.12.3
+bs4==0.0.2
+fake-useragent==1.4.0
+pytz==2023.3.post1
+PyVirtualDisplay==3.0
+selenium==4.1.0
+webdriver-manager==4.0.1
