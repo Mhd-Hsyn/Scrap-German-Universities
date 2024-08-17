@@ -21581,5 +21581,55 @@
         ],
         "campus_info": [],
         "images": []
+    },
+    {
+        "uni_name": "XU Exponential University",
+        "uni_link": "https://www.studycheck.de/hochschulen/xu",
+        "name": "XU Exponential University",
+        "logo": "https://static.studycheck.de/media/images/institute_logos/rectangle/xu/xu.png",
+        "web_url": "https://xu-university.com/?utm_source=studycheck&utm_medium=referral&utm_campaign=infoprofile&utm_content=hochschule",
+        "description": "A New era NEETS A New University.If digitalization and innovative technologies are changing Our Society, The Future of Work Depends on New, Digital Skills and Entire Sectors of the Economy Are Undergoing Upheaval - Doesn't Our Education System So have to change and provides?Exponential University Near Berlin is Germany's first university that FOCUSES Exclusively on Digitization and Technology.In Studio Five on the Grounds of Studio Babelsberg in Potsdam, We have created a place that focuses specifically on the training, promotion and networking of future heroes of digital change.Our University in Potsdam is the Perfect Place for You!",
+        "facts": {
+            "Student": "150 Students",
+            "Professor": "3 Professors",
+            "Lecturer": "13 Lecturers",
+            "Foundation": "Founded in 2018"
+        },
+        "contact_info": {
+            "address": "XU Exponential University August-Bebel-Stra\u00dfe 26-53 14482 Potsdam",
+            "phone": "+49 30 959 999 991",
+            "email": "hello@xu-university.com"
+        },
+        "degree_programs": [],
+        "campus_info": [
+            {
+                "location": "Campus Potsdam",
+                "address": "August-Bebel-Stra\u00dfe 26-53 14482 Potsdam",
+                "phone": "+49 30 959 999 991",
+                "email": "hello@xu-university.com"
+            }
+        ],
+        "images": [
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-1.png",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-10.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-11.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-12.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-13.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-14.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-15.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-16.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-2.png",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-3.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-4.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-5.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-6.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-7.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/gallery-9.jpg",
+            "https://www.studycheck.de/images/fit/920x521/media/images/institute_gallery_images/xu/xu-gallery-1",
+            "https://static.studycheck.de/images/fit/1000x850/media/images/institute_header_images/xu/header_1.jpg",
+            "https://static.studycheck.de/images/fit/1000x850/media/images/institute_header_images/xu/xu_header-2.jpg",
+            "https://static.studycheck.de/images/fit/1000x850/media/images/institute_header_images/xu/xu-header-2.jpg",
+            "https://static.studycheck.de/images/fit/1000x850/media/images/institute_header_images/xu/xu_header-4.png"
+        ]
     }
 ]
