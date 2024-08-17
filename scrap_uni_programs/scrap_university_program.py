@@ -125,7 +125,9 @@ def scrap_uni_data(html):
     main_div=  soup.find("div", {"class": ("tab-institute-description", "institute-description")})
     if main_div:
         description_text= main_div.text.strip()
-        all_data["description"]= translate_german_to_english(description_text)
+        if description_text:
+            description_translate= translate_german_to_english(description_text)
+            all_data["description"]= description_translate
 
     # For Degree Programs
     body= soup.find("tbody", {"class": "js-list"})
@@ -236,13 +238,13 @@ def scrap_uni_data(html):
 
 
 def scrap_uni_page():
-    try:
+    # try:
        
-        # options = get_chromedrvier_options()
+        options = get_chromedrvier_options()
         # driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-        # driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=options)
-        # driver.maximize_window()
-        # # driver.get("https://www.studycheck.de/suche")
+        driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=options)
+        driver.maximize_window()
+        # driver.get("https://www.studycheck.de/suche")
         # driver.get("https://www.studycheck.de/hochschulen/asc/bewertungen")
         # # driver.get("https://www.studycheck.de/hochschulen/hs-albsig")
         
@@ -261,67 +263,90 @@ def scrap_uni_page():
             all_uni_links = json.load(file)
             
         
+        
 
-        for index, (name, link) in enumerate(all_uni_links, start=1):  # Fetching 1 to 59 pages
+        for index, (name, link) in enumerate(all_uni_links, start=1):
+            if index <= 106:
+                print(f"Skipping page {index} as it has already been scraped.")
+                continue
+
             print(f"\n\n\n\n *********** Scraping page {index} *************\n\n")
+            print(f"Link is _________________ {link}")
+            driver.get(link)
+            time.sleep(2)  # Waiting for page to load
+            driver.refresh()
+            time.sleep(2)  # Waiting for page to loadme.s
+            
+            try:
+                translate_button = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
+                )
+                translate_button.click()
+            except:
+                print("Translation bar did not appear, proceeding with scraping.")
+            
+            try:
+                button = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-target=".page-tab-courses"]'))
+                )
+                button.click()
+            except :
+                pass
 
-            link_data = None
-            retry = True
-            while retry:
-                try:
-                    options = get_chromedrvier_options()
-                    driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=options)
-                    driver.maximize_window()       
-                    driver.get(link)
-                    time.sleep(2)  # Waiting for page to loadme.s
-                    driver.refresh()
-                    driver.get(link)
-                    time.sleep(2)  # Waiting for page to loadme.s
-                    try:
-                        translate_button = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
-                        )
-                        translate_button.click()
-                    except:
-                        print("Translation bar did not appear, proceeding with scraping.")
-                    
-                    
-                    
-                    
-                    try:
-                        with open("all_university_data.json", "r") as file:
-                            all_links_data = json.load(file)
-                    except FileNotFoundError:
-                        all_links_data = []
-                    
-                    time.sleep(2)  # Waiting for page to load
-                    html = driver.page_source
-                    link_data=  scrap_uni_data(html)
-                    link_data["uni_name"] = name
-                    link_data["uni_link"] = link
-                    all_links_data.append(link_data)
-                    time.sleep(2)  # Waiting for page to load
+            time.sleep(2)  # Waiting for page to load
+            driver.refresh()
+            time.sleep(2)  # Waiting for page to load
+
+            try:
+                translate_button = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
+                )
+                translate_button.click()
+            except:
+                print("Translation bar did not appear, proceeding with scraping.")
+            
+            time.sleep(2)  # Waiting for page to load
+
+
+            try:
+                with open("all_university_data.json", "r") as file:
+                    all_links_data = json.load(file)
+            except FileNotFoundError:
+                all_links_data = []
+            
+            print("\n\nAll University Links DATA loaded successfully.")
+            print(f"Total universities: {len(all_links_data)}")
+            print(f"Type of each field: {type(all_links_data)}")
+            print("\n\n")
+            
+            time.sleep(2)  # Waiting for page to load
+            html = driver.page_source
+            link_data=  scrap_uni_data(html)
+            link_data["uni_name"] = name
+            link_data["uni_link"] = link
+            
+            print(f"\n\nData scraped for {name} successfully.\n\n")
+            print(f"\nData is : ___________________ \n{link_data}\n\n")
+
+            all_links_data.append(link_data)
+            
+            print(f"\n\n\n Total universities after scraping: _________ {len(all_links_data)}")
+            print(all_links_data)
+        
+            with open('all_university_data.json', 'w') as outfile:
+                json.dump(all_links_data, outfile, indent=4)
+                print("Data saved to all_university_data.json")
+                print("Scraping completed.")
                 
-                    with open('all_university_data.json', 'w') as outfile:
-                        json.dump(all_links_data, outfile, indent=4)
-                        print("Data saved to all_university_data.json")
-                        print("Scraping completed.")
-                        
-                        retry = False
-
-                except:
-                    retry= True
-                finally:
-                    print("QUIT WEB DRIVER ______________")
-                    if driver:
-                        driver.quit()
-
-    except Exception as e:
-        print("An error occurred./n/n", e)
-    finally:
-        print("QUIT WEB DRIVER ______________")
         if driver:
             driver.quit()
+
+    # except Exception as e:
+    #     print("An error occurred./n/n", e)
+    # finally:
+    #     print("QUIT WEB DRIVER ______________")
+    #     if driver:
+    #         driver.quit()
 
 
 

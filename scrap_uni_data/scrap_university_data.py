@@ -125,7 +125,9 @@ def scrap_uni_data(html):
     main_div=  soup.find("div", {"class": ("tab-institute-description", "institute-description")})
     if main_div:
         description_text= main_div.text.strip()
-        all_data["description"]= translate_german_to_english(description_text)
+        if description_text:
+            description_translate= translate_german_to_english(description_text)
+            all_data["description"]= description_translate
 
     # For Degree Programs
     body= soup.find("tbody", {"class": "js-list"})
@@ -236,7 +238,7 @@ def scrap_uni_data(html):
 
 
 def scrap_uni_page():
-    try:
+    # try:
        
         options = get_chromedrvier_options()
         # driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
@@ -261,9 +263,15 @@ def scrap_uni_page():
             all_uni_links = json.load(file)
             
         
+        
 
-        for index, (name, link) in enumerate(all_uni_links, start=1):  # Fetching 1 to 59 pages
+        for index, (name, link) in enumerate(all_uni_links, start=1):
+            if index <= 114:
+                print(f"Skipping page {index} as it has already been scraped.")
+                continue
+
             print(f"\n\n\n\n *********** Scraping page {index} *************\n\n")
+            print(f"Link is _________________ {link}")
             driver.get(link)
             time.sleep(2)  # Waiting for page to load
             driver.refresh()
@@ -306,26 +314,39 @@ def scrap_uni_page():
             except FileNotFoundError:
                 all_links_data = []
             
+            print("\n\nAll University Links DATA loaded successfully.")
+            print(f"Total universities: {len(all_links_data)}")
+            print(f"Type of each field: {type(all_links_data)}")
+            print("\n\n")
+            
             time.sleep(2)  # Waiting for page to load
             html = driver.page_source
             link_data=  scrap_uni_data(html)
             link_data["uni_name"] = name
             link_data["uni_link"] = link
+            
+            print(f"\n\nData scraped for {name} successfully.\n\n")
+            print(f"\nData is : ___________________ \n{link_data}\n\n")
+
             all_links_data.append(link_data)
-            time.sleep(2)  # Waiting for page to load
+            
+            print(f"\n\n\n Total universities after scraping: _________ {len(all_links_data)}")
+            print(all_links_data)
         
             with open('all_university_data.json', 'w') as outfile:
                 json.dump(all_links_data, outfile, indent=4)
                 print("Data saved to all_university_data.json")
                 print("Scraping completed.")
                 
-
-    except Exception as e:
-        print("An error occurred./n/n", e)
-    finally:
-        print("QUIT WEB DRIVER ______________")
         if driver:
             driver.quit()
+
+    # except Exception as e:
+    #     print("An error occurred./n/n", e)
+    # finally:
+    #     print("QUIT WEB DRIVER ______________")
+    #     if driver:
+    #         driver.quit()
 
 
 
