@@ -70,7 +70,23 @@ def scrap_uni_program_data(html):
 
     # For Course Description
     desc_tag= soup.find("div", {"class": "courses-details"})
-    all_data["description"] = translate_german_to_english(desc_tag.text.strip()) if desc_tag else ""
+    
+    if desc_tag:
+        description = desc_tag.text.strip() if desc_tag else ""
+
+        if description:
+            try:
+                translated_description = translate_german_to_english(description)
+                all_data["description"] = translated_description
+            
+            except Exception as e:
+                description = desc_tag.find('p')
+                description = description.text.strip()  if description else ""
+                try:
+                    translated_description = translate_german_to_english(description)
+                    all_data["description"] = translated_description
+                except:
+                    pass
 
     # MAin Div
     main_div = soup.find("div", {"id": "tab-0"})
@@ -81,7 +97,6 @@ def scrap_uni_program_data(html):
 
         # For Information
         all_info_div = main_div.find_all("div", {"class": "card-row"})
-        print(f"Number of info divs: {len(all_info_div)} __________ \n {all_info_div}")
         if all_info_div:
             for info_div in all_info_div:
                 key_ele = info_div.find("div", {"class": "card-row-label"})
@@ -93,7 +108,6 @@ def scrap_uni_program_data(html):
                 all_data["information"][key] = value
 
 
-    print(json.dumps(all_data, indent=4) + "\n"  )   
 
     return all_data
 
@@ -141,8 +155,8 @@ def scrap_uni_page():
         for index, uni_data in enumerate(all_uni_links, start=1):
             university_name = uni_data.get("uni_name", "")
             university_link = uni_data.get("uni_link", "")
-            university_name = re.sub(r'[^\w\s-]', '', university_name)  # Remove everything except alphanumeric, space, dash
-            university_name = re.sub(r'[\s]+', '_', university_name)  # Replace spaces with underscores
+            # university_name = re.sub(r'[^\w\s-]', '', university_name)  # Remove everything except alphanumeric, space, dash
+            # university_name = re.sub(r'[\s]+', '_', university_name)  # Replace spaces with underscores
             
             print(f"\n\n\n\n *********** Scraping UNIVERSITY {university_name} *************\n")
 
