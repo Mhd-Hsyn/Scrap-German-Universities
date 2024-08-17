@@ -51,178 +51,49 @@ def translate_german_to_english(german_text):
 
 
 
-def scrap_uni_data(html):
+def scrap_uni_program_data(html):
     all_data = {
-        "uni_name": "",
-        "uni_link": "",
-        "name": "",
-        "logo": "",
-        "web_url": "",
+        "university_name": "",
+        "university_link": "",
+        "program_name": "",
+        "program_link": "",
+        "full_name": "",
         "description": "",
-        "facts": {},
-        "contact_info": {},
-        "degree_programs": [],
-        "campus_info": [],
-        "images": [],
+        "rating": "",
+        "information": {},
     }
     soup= BeautifulSoup(html, "html.parser")
-    
-    # For Name
-    name_div= soup.find("h1", {"class": "institute-title"})
-    if name_div:
-        all_data["name"]= name_div.text.strip()
-        
-    # For Link
-    link_div= soup.find("a", {"class": "institute-link"})
-    if link_div:
-        all_data["web_url"]= link_div["href"]
-            
-    # For Logo
-    logo_div= soup.find("img", {"class": "institute-logo"})
-    if logo_div:
-        all_data["logo"]= logo_div["src"]
 
-    # For Images
-    main_ul = soup.find("ul", {"class" :"js-thumbnails thumbnails nano-content"})
-    if main_ul:
-        images= []
-        # li_tags= main_ul.find_all("li", {"class": "js-thumbnails-item thumbnails-item"})
-        li_tags= main_ul.find_all("li")
-        for li_tag in li_tags:
-            image_div = li_tag.find("a", {"data-lightbox": "institute-gallery-2"})
-            if image_div:
-                img = "https://www.studycheck.de" + image_div["href"]
-                images.append(img)
+    # For Course Full Name
+    heading_tag= soup.find("h1", {"class": "course-title"})
+    all_data["full_name"] = heading_tag.text.strip() if heading_tag else ""
 
-        all_data["images"]= images
-    
-    # For Background Images
-    divs_with_background = soup.find_all("div", style=re.compile(r'background-image'))
+    # For Course Description
+    desc_tag= soup.find("div", {"class": "courses-details"})
+    all_data["description"] = translate_german_to_english(desc_tag.text.strip()) if desc_tag else ""
 
-    # List to store all the background image URLs with updated dimensions
-    background_urls = []
-
-    # Regular expression to extract URL from the style attribute
-    url_pattern = re.compile(r'url\((.*?)\)')
-
-    for div in divs_with_background:
-        style = div.get('style')
-        url_match = url_pattern.search(style)
-        if url_match:
-            # Extract the URL and strip any quotes
-            background_url = url_match.group(1).strip('"').strip("'")
-            
-            # Replace the dimensions in the URL with "1000x850"
-            updated_url = re.sub(r'\d+x\d+', '1000x850', background_url)
-            
-            background_urls.append(updated_url)
-        
-    
-    all_data["images"] += background_urls
-
-
-    # For Description
-    main_div=  soup.find("div", {"class": ("tab-institute-description", "institute-description")})
+    # MAin Div
+    main_div = soup.find("div", {"id": "tab-0"})
     if main_div:
-        description_text= main_div.text.strip()
-        if description_text:
-            description_translate= translate_german_to_english(description_text)
-            all_data["description"]= description_translate
+        # For Rating
+        rating_div = main_div.find("div", {"class": "rating-value"})
+        all_data["rating"] = rating_div.text.strip() if rating_div else ""
 
-    # For Degree Programs
-    body= soup.find("tbody", {"class": "js-list"})
-    if body:
-        degree_programs= []
-        tr_tags= body.find_all("tr")
-        for tr_tag in tr_tags:
-            course_link_tag = tr_tag.find("a", {"class": "course-title"})
-            if course_link_tag and course_link_tag.get("href"):
-                course_link = course_link_tag.get("href")
-                course_name= course_link_tag.text.strip()
-                degree_programs.append((course_name, course_link))
-
-        all_data["degree_programs"]= degree_programs
-
-    # For FACTS 
-    dl_facts = soup.find("dl", class_="institute-facts")
-
-    # Extract all dt and dd pairs
-    facts = {}
-    if dl_facts:
-        terms = dl_facts.find_all("dt")
-        descriptions = dl_facts.find_all("dd")
-
-        for term, description in zip(terms, descriptions):
-            # Extract text and strip any extra whitespace
-            key = term.text.strip()
-            value = description.text.strip()
-            key = re.sub(r'\s+', ' ', key)
-            value = re.sub(r'\s+', ' ', value)
-            facts[translate_german_to_english(key)] = translate_german_to_english(value)
-
-    all_data["facts"] = facts
+        # For Information
+        all_info_div = main_div.find_all("div", {"class": "card-row"})
+        print(f"Number of info divs: {len(all_info_div)} __________ \n {all_info_div}")
+        if all_info_div:
+            for info_div in all_info_div:
+                key_ele = info_div.find("div", {"class": "card-row-label"})
+                key = key_ele.text.strip().replace(" ", "_") if key_ele else ""
+                
+                value_ele = info_div.find("div", {"class": "card-row-content"})
+                value = value_ele.text.strip() if value_ele else ""
+                
+                all_data["information"][key] = value
 
 
-    # For Contact Info
-    contactbox = soup.find('ul', class_='contactbox')
-    # Initialize a dictionary to store the data
-    contact_info = {
-        "address": "",
-        "phone": "",
-        "email": ""
-    }
-    # Extract the content inside each <li> tag
-    if contactbox:
-        address_div = contactbox.find('div', {'class': "content"})
-        if address_div:
-            all_address = address_div.find_all('p')
-            address =  " ".join(re.sub(r'\s+', ' ', addr.text.strip()) for addr in all_address)
-            contact_info['address'] = address
-
-        email_div= contactbox.find_all('div', {'class': "content content-small"})
-        if email_div:
-            contact = email_div[0].find('p').text.strip() if len(email_div) >= 1 and email_div[0].find('p') else ""
-            contact_info['phone'] = contact
-
-            email = email_div[1].find('p').text.strip() if len(email_div) >= 2 and email_div[1].find('p') else ""
-            contact_info['email'] = email
-
-    all_data["contact_info"] = contact_info
-
-    # For Campus Info
-    contact_data = []
-    # Find the list of locations
-    locations_ul = soup.find('ul', class_='js-locations-list')
-    locations= locations_ul.find_all('li') if locations_ul else []
-
-    for location in locations:
-        # Extract the location name
-        location_name_span = location.find('span', class_='title')
-        location_name= location_name_span.text.strip() if location_name_span else ""
-        
-        # Extract the Address Information
-        address_lines_span = location.find('span', class_='adress')
-        address =  address_lines_span.decode_contents().replace('<br/>', '').strip() if address_lines_span else ""
-        address = re.sub(r'\s+', ' ', address)
-        address = address.replace('\n ', ' ').strip()
-
-        # Extract the Contact Information and email information
-        all_divs= location.find_all('div', class_='content')
-        if all_divs:
-            # Extract the contact information
-            contact = all_divs[0].text.strip() if len(all_divs) >= 1 else ""
-            # Extract the email information
-            email = all_divs[1].text.strip() if len(all_divs) >= 2 else ""
-
-        # Store the extracted information
-        contact_data.append({
-            'location': location_name,
-            'address': address,
-            'phone': contact,
-            'email': email
-        })
-    
-    all_data["campus_info"] = contact_data
+    print(json.dumps(all_data, indent=4) + "\n"  )   
 
     return all_data
 
@@ -244,100 +115,75 @@ def scrap_uni_page():
         # driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()), options=options)
         driver.maximize_window()
-        # driver.get("https://www.studycheck.de/suche")
+        driver.get("https://www.studycheck.de/suche")
         # driver.get("https://www.studycheck.de/hochschulen/asc/bewertungen")
         # # driver.get("https://www.studycheck.de/hochschulen/hs-albsig")
+        time.sleep(2)  # Waiting for page to load
+        driver.refresh()
+        time.sleep(2)  # Waiting for page to load
         
-        # try:
-        #     translate_button = WebDriverWait(driver, 10).until(
-        #         EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
-        #     )
-        #     translate_button.click()
-        # except:
-        #     print("Translation bar did not appear, proceeding with scraping.")
+        try:
+            translate_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
+            )
+            translate_button.click()
+        except:
+            print("Translation bar did not appear, proceeding with scraping.")
         
-        # driver.refresh()
-        # driver.refresh()
+        driver.refresh()
 
-        with open("unique_universities.json", "r") as file:
+        with open("all_university_data.json", "r") as file:
             all_uni_links = json.load(file)
             
         
         
 
-        for index, (name, link) in enumerate(all_uni_links, start=1):
-            if index <= 106:
-                print(f"Skipping page {index} as it has already been scraped.")
-                continue
+        for index, uni_data in enumerate(all_uni_links, start=1):
+            university_name = uni_data.get("uni_name", "")
+            university_link = uni_data.get("uni_link", "")
+            university_name = re.sub(r'[^\w\s-]', '', university_name)  # Remove everything except alphanumeric, space, dash
+            university_name = re.sub(r'[\s]+', '_', university_name)  # Replace spaces with underscores
+            
+            print(f"\n\n\n\n *********** Scraping UNIVERSITY {university_name} *************\n")
 
-            print(f"\n\n\n\n *********** Scraping page {index} *************\n\n")
-            print(f"Link is _________________ {link}")
-            driver.get(link)
-            time.sleep(2)  # Waiting for page to load
-            driver.refresh()
-            time.sleep(2)  # Waiting for page to loadme.s
-            
-            try:
-                translate_button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
-                )
-                translate_button.click()
-            except:
-                print("Translation bar did not appear, proceeding with scraping.")
-            
-            try:
-                button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-target=".page-tab-courses"]'))
-                )
-                button.click()
-            except :
-                pass
+            degree_programs = uni_data.get("degree_programs", [])
+            for program_name, program_link in degree_programs:
+                try:
+                    with open(f"all_data/all_uni_program_data.json", "r") as file:
+                        all_programs_data = json.load(file)
+                        
+                except:
+                    all_programs_data = []
 
-            time.sleep(2)  # Waiting for page to load
-            driver.refresh()
-            time.sleep(2)  # Waiting for page to load
+                print(f"\n Name of program is _________________ {program_name}")
+                print(f"Link of program is _________________ {program_link}")
 
-            try:
-                translate_button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
-                )
-                translate_button.click()
-            except:
-                print("Translation bar did not appear, proceeding with scraping.")
-            
-            time.sleep(2)  # Waiting for page to load
-
-
-            try:
-                with open("all_university_data.json", "r") as file:
-                    all_links_data = json.load(file)
-            except FileNotFoundError:
-                all_links_data = []
-            
-            print("\n\nAll University Links DATA loaded successfully.")
-            print(f"Total universities: {len(all_links_data)}")
-            print(f"Type of each field: {type(all_links_data)}")
-            print("\n\n")
-            
-            time.sleep(2)  # Waiting for page to load
-            html = driver.page_source
-            link_data=  scrap_uni_data(html)
-            link_data["uni_name"] = name
-            link_data["uni_link"] = link
-            
-            print(f"\n\nData scraped for {name} successfully.\n\n")
-            print(f"\nData is : ___________________ \n{link_data}\n\n")
-
-            all_links_data.append(link_data)
-            
-            print(f"\n\n\n Total universities after scraping: _________ {len(all_links_data)}")
-            print(all_links_data)
-        
-            with open('all_university_data.json', 'w') as outfile:
-                json.dump(all_links_data, outfile, indent=4)
-                print("Data saved to all_university_data.json")
-                print("Scraping completed.")
+                driver.get(program_link)
+                time.sleep(2)  # Waiting for page to load
+                driver.refresh()
                 
+                try:
+                    translate_button = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'translate')]//button[contains(text(),'Translate')]"))
+                    )
+                    translate_button.click()
+                except:
+                    print("Translation bar did not appear, proceeding with scraping.")
+                
+                time.sleep(2)  # Waiting for page to load
+
+                data = scrap_uni_program_data(driver.page_source)
+                data["university_name"] = university_name
+                data["university_link"] = university_link
+                data["program_link"] = program_link
+                data['program_name'] = program_name
+                all_programs_data.append(data)
+
+                with open(f"all_data/all_uni_program_data.json", "w") as file:
+                    json.dump(all_programs_data, file, indent=4)
+                    print("Data saved to all_uni_program_data.json")
+
+
         if driver:
             driver.quit()
 
