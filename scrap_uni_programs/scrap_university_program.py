@@ -171,7 +171,7 @@ def scrap_uni_page():
             
         
         
-
+        COUNT = 0
         for index, uni_data in enumerate(all_uni_links, start=1):
             university_name = uni_data.get("uni_name", "")
             university_link = uni_data.get("uni_link", "")
@@ -182,6 +182,12 @@ def scrap_uni_page():
 
             degree_programs = uni_data.get("degree_programs", [])
             for program_name, program_link in degree_programs:
+                COUNT += 1
+                if COUNT <= 2028:
+                    print(f"\n\n\n\n *********** Scraping INDEX {COUNT}  Already Scrapped *************\n")
+                    continue 
+                
+                # Start scrapping for program data
                 try:
                     with open(f"all_data/all_uni_program_data.json", "r") as file:
                         all_programs_data = json.load(file)
