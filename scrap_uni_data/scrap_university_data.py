@@ -214,14 +214,14 @@ def scrap_uni_data(html):
             # Extract the email information
             email = all_divs[1].text.strip() if len(all_divs) >= 2 else ""
 
-        # Store the extracted information
-        contact_data.append({
-            'location': location_name,
-            'address': address,
-            'phone': contact,
-            'email': email
-        })
-    
+            # Store the extracted information
+            contact_data.append({
+                'location': location_name,
+                'address': address,
+                'phone': contact,
+                'email': email
+            })
+        
     all_data["campus_info"] = contact_data
 
     return all_data
@@ -266,7 +266,7 @@ def scrap_uni_page():
         
 
         for index, (name, link) in enumerate(all_uni_links, start=1):
-            if index <= 165:
+            if index <= 244:
                 print(f"Skipping page {index} as it has already been scraped.")
                 continue
 
@@ -326,17 +326,16 @@ def scrap_uni_page():
             link_data["uni_link"] = link
             
             print(f"\n\nData scraped for {name} successfully.\n\n")
-            print(f"\nData is : ___________________ \n{link_data}\n\n")
+            print(f"\nData is : ___________________ \n{json.dumps(link_data, indent=2)}\n\n")
 
             all_links_data.append(link_data)
             
             print(f"\n\n\n Total universities after scraping: _________ {len(all_links_data)}")
-            print(all_links_data)
         
             with open('all_university_data.json', 'w') as outfile:
                 json.dump(all_links_data, outfile, indent=4)
-                print("Data saved to all_university_data.json")
-                print("Scraping completed.")
+                print("\nData saved to all_university_data.json")
+                print("Scraping completed.\n\n")
                 
         if driver:
             driver.quit()
