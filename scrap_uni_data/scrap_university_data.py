@@ -266,7 +266,7 @@ def scrap_uni_page():
         
 
         for index, (name, link) in enumerate(all_uni_links, start=1):
-            if index <= 509:
+            if index <= 580:
                 print(f"Skipping page {index} as it has already been scraped. {name} ({link} has been skipped.")
                 continue
 
